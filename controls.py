@@ -15,7 +15,7 @@ menu = {
 	"Tracks": [],
 	"list": [],
 	"Queue": [],
-	"Settings": ["Shutdown"],
+	"Settings": ["Update library", "Sleep", "Shutdown"],
 	"current": "musicController",
 	"history": [],
 }
@@ -28,6 +28,13 @@ secondaryColor = (100, 100, 255)  # global
 class interface:
 	selectedItem = 0
 	sleep = 0
+	metadata = []
+	tracks = {}
+	artists = []
+	albums = []
+	playing = 0
+	queueIndex = 0
+	volume = 15
 	
 	def __init__(self):
 		os.putenv('SDL_FBDEV', '/dev/fb1')  # Route the output to framebuffer 1 (TFT display)
@@ -38,6 +45,11 @@ class interface:
 		pygame.key.set_repeat(500, 100)
 		
 		self.font = pygame.font.Font("TerminusTTF-4.46.0.ttf", 12)
+		pygame.mixer.init()
+		pygame.mixer.music.set_volume(0.15)
+		
+		# Load music
+		self.load()
 
 		# Set backlight pin as output and turn it on
 		GPIO.setwarnings(False)  # disable warning because it is known that the pin is already set as output
@@ -146,14 +158,18 @@ class interface:
 				menu["list"] = tempList
 				menu["current"] = "list"
 				self.selectedItem = 0
+			elif menu["current"] == "Settings":
+				if menu["Settings"][self.selectedItem] == "Update library":
+					self.update()
+				elif menu["Settings"][self.selectedItem] == "Sleep":
+					self.toggleSleep()
+				elif menu["Settings"][self.selectedItem] == "Shutdown":
+					self.shutdown()
 			else:
 				if menu[menu["current"]]:  # check if empty
-					if menu[menu["current"]][self.selectedItem] == "Shutdown":
-						self.shutdown()
-					else:
-						menu["history"].append(menu["current"])  # update history
-						menu["current"] = menu[menu["current"]][self.selectedItem]  # go to next menu
-					self.selectedItem = 0
+					menu["history"].append(menu["current"])  # update history
+					menu["current"] = menu[menu["current"]][self.selectedItem]  # go to next menu
+				self.selectedItem = 0
 			
 		elif action == "left":
 			print(menu["history"])
@@ -168,23 +184,7 @@ class interface:
 			if menu["current"] == "musicController":
 				self.selectedItem = 0
 				menu["current"] = "Main"
-				
-class musicControl:
-	metadata = []
-	tracks = {}
-	artists = []
-	albums = []
-	playing = 0
-	queueIndex = 0
-	volume = 15
-	
-	def __init__(self):
-		pygame.mixer.init()
-		pygame.mixer.music.set_volume(0.15)
-		
-		# Load music
-		self.load()
-		
+						
 	def loop(self):
 		if self.playing == 1:
 			if not pygame.mixer.music.get_busy():
