@@ -213,6 +213,9 @@ class interface:
 		
 	def load(self):
 		file = open("info.csv", "rt")
+		menu["Artists"] = []
+		menu["Albums"] = []
+		menu["Tracks"] = []
 		try:
 			reader = csv.reader(file)
 			for row in reader:
