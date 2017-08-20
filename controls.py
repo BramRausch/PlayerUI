@@ -172,7 +172,7 @@ class interface:
 				self.selectedItem = 0
 			
 		elif action == "left":
-			print(menu["history"])
+			# print(menu["history"])
 			self.selectedItem = 0
 			if menu["history"]:  # check if history is empty
 				menu["current"] = menu["history"][-1::][0]
@@ -192,7 +192,7 @@ class interface:
 		
 	def update(self):
 		fileList = []
-		print("Updating metadata")
+		# print("Updating metadata")
 		for root, dirs, files in os.walk("Music/"):
 				for f in files:
 						filename = os.path.join(root, f)
@@ -202,11 +202,14 @@ class interface:
 		file = open("info.csv", "w", newline="")
 		writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
 		
-		print("Saving metadate")
+		# print("Saving metadate")
 		for i in fileList:
 				audiofile = eyed3.load(i)
 				tag = audiofile.tag
-				writer.writerow((i, tag.artist, tag.album, tag.title))
+				try:
+					writer.writerow((i, tag.artist, tag.album, tag.title))
+				except AttributeError:
+					print(i)
 		print("Done")
 		file.close()
 		self.load()
@@ -237,7 +240,7 @@ class interface:
 	def play(self, info):
 		global currentSong
 		currentSong = list(info)
-		print(currentSong)
+		# print(currentSong)
 		pygame.mixer.music.load(info[0])
 		pygame.mixer.music.play()
 		self.playing = 1
