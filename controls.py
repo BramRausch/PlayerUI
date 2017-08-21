@@ -191,6 +191,7 @@ class interface:
 				self.next()
 		
 	def update(self):
+		self.playPause()
 		fileList = []
 		# print("Updating metadata")
 		for root, dirs, files in os.walk("Music/"):
@@ -254,10 +255,13 @@ class interface:
 			pygame.mixer.music.unpause()
 		
 	def shuffle(self):
-		# To do: don't shuffle already played songs
-		menu["Queue"].remove(currentSong)  # Remove selected
+		# Before shuffling remove the already played songs to make sure these don't get played again
+		currentIndex = menu["Queue"].index(currentSong)+1 
+		history = menu["Queue"][0:currentIndex]
+		menu["Queue"] = menu["Queue"][currentIndex::] 
 		random.shuffle(menu["Queue"])
-		menu["Queue"].insert(0, currentSong)
+		# Add the already played songs to the front again
+		menu["Queue"] = history + menu["Queue"]
 		
 	def next(self):
 		if self.queueIndex < len(menu["Queue"])-1:

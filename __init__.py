@@ -63,7 +63,12 @@ while not done:
 						inter.playPause()
 				elif menu["current"] == "list" or menu["current"] == "Tracks":
 					inter.play(menu[menu["current"]][inter.selectedItem])  # Play the selected song
-					menu["Queue"] = list(menu[menu["current"]])  # copy the list where the song is selected to the queue
+					if menu["Queue"]:
+						for item in list(menu[menu["current"]]):
+							if item not in menu["Queue"]:
+								menu["Queue"].append(item)	
+					else:
+						menu["Queue"] = list(menu[menu["current"]])  # copy the list where the song is selected to the queue
 					menu["Queue"].remove(menu[menu["current"]][inter.selectedItem])  # Remove selected
 					menu["Queue"].insert(0, menu[menu["current"]][inter.selectedItem])  # Put selected at first position
 				elif menu["current"] == "musicController":
