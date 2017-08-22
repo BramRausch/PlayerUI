@@ -109,6 +109,7 @@ class interface:
 		playPauseText = self.font.render("Play/Pause", True, secondaryColor if self.selectedItem == 3 else primaryColor)
 		nextText = self.font.render("Next", True, secondaryColor if self.selectedItem == 4 else primaryColor)
 		shuffleText = self.font.render("Shuffle", True, secondaryColor if self.selectedItem == 5 else primaryColor)
+		clearText = self.font.render("Clear", True, secondaryColor if self.selectedItem == 6 else primaryColor)
 		
 		self.lcd.blit(volumeText, (160-10-volumeText.get_width(), 128-45))
 		self.lcd.blit(volumeUpText, (10, 128-45))
@@ -118,6 +119,7 @@ class interface:
 		self.lcd.blit(playPauseText, ((160-playPauseText.get_width())/2, 128-30))
 		self.lcd.blit(nextText, (160-nextText.get_width()-10, 128-30))
 		self.lcd.blit(shuffleText, (10, 128-15))
+		self.lcd.blit(clearText, (160-clearText.get_width()-10, 128-15))
 	
 	def menuAction(self, action):
 		if action == "up":
@@ -125,12 +127,12 @@ class interface:
 				self.selectedItem -= 1
 			elif menu["current"] == "Queue":
 				menu["history"].pop()
-				self.selectedItem = 5
+				self.selectedItem = 6
 				menu["current"] = "musicController"
 				
 		elif action == "down":
 			if menu["current"] == "musicController":
-				if self.selectedItem < 5:
+				if self.selectedItem < 6:
 					self.selectedItem += 1
 				else:
 					menu["history"].append(menu["current"])  # update history
@@ -223,14 +225,16 @@ class interface:
 		try:
 			reader = csv.reader(file)
 			for row in reader:
-				if row[1].lstrip() is not "":
-					if row[1].lstrip() not in menu["Artists"]:
-						menu["Artists"].append(row[1].lstrip())
-				if row[2].lstrip() is not "":
-					if row[2].lstrip() not in menu["Albums"]:
-						menu["Albums"].append(row[2].lstrip())
+				artistClear = row[1].lstrip().lower().title()
+				albumClear = row[2].lstrip().lower().title()
+				if artistClear is not "":
+					if artistClear not in menu["Artists"]:
+						menu["Artists"].append(artistClear)
+				if albumClear is not "":
+					if albumClear not in menu["Albums"]:
+						menu["Albums"].append(albumClear)
 				if row[3].lstrip() is not "":
-					self.metadata.append([row[0], row[1].lstrip(), row[2].lstrip(), row[3].lstrip()])  # [filename, artist, album, title]
+					self.metadata.append([row[0], artistClear, albumClear, row[3].lstrip()])  # [filename, artist, album, title]
 		finally:
 			file.close()
 		
@@ -262,6 +266,13 @@ class interface:
 		random.shuffle(menu["Queue"])
 		# Add the already played songs to the front again
 		menu["Queue"] = history + menu["Queue"]
+		
+	def clearQueue(self):
+		del currentSong[:]
+		self.playing = 0
+		pygame.mixer.music.pause()
+		menu["Queue"] = []
+		
 		
 	def next(self):
 		if self.queueIndex < len(menu["Queue"])-1:

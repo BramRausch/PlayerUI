@@ -84,6 +84,8 @@ while not done:
 						inter.next()
 					elif inter.selectedItem == 5:
 						inter.shuffle()
+					elif inter.selectedItem == 6:
+						inter.clearQueue()
 				else:
 					inter.menuAction("select")
 				
